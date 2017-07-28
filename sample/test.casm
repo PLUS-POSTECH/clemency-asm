@@ -1,0 +1,9 @@
+SHELLCODE:
+    AD r00, r00, r01
+    ADCI r00, r00, 0x3f
+    LDT r00, [r00 + 0, 0]
+    RE
+    LDT r00, [r00 + 0, 0]
+HERE:
+    BRA 0x1234
+    BRA HERE
