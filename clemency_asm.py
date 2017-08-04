@@ -2,12 +2,13 @@ import binascii
 import re
 import sys
 
-from definition import instruction_data
+from definition import instruction_def, macro_def
 
 def pad_bin(value, size):
-    # Immediate value maximum is 27 bit
-    assert -67108864 <= value < 134217728
+    # Immediate value range check
+    assert -(1 << (size-1)) <= value < ((1 << size)-1)
     if value < 0:
+        # size should be less than 27
         value = value & 0xffffffff
     bin_str = bin(value)[2:].zfill(size)
     return bin_str[-size:]
@@ -23,7 +24,64 @@ def register_name_to_bit(name):
         return pad_bin(30, 5)
     elif name == 'pc':
         return pad_bin(31, 5)
+    print name
     raise Exception('Unknown Register')
+
+def calculate_converted(pc, tail, parse, data, label_dictionary):
+    delimiters = []
+    for (i, pattern) in enumerate(parse[:-1]):
+        if i + 1 < len(parse) and type(parse[i + 1]) is list:
+            delimiters += (',[', '+', ',', ']')
+        else:
+            delimiters.append(',')
+
+    prev_index = 0
+    input_data = []
+    for delimiter in delimiters:
+        delim_index = tail.index(delimiter, prev_index)
+        input_data.append(tail[prev_index:delim_index])
+        prev_index = delim_index + len(delimiter)
+    input_data.append(tail[prev_index:])
+
+    converted_data = []
+    for (i, pattern) in enumerate(data):
+        if pattern == 'rA' or pattern == 'rB' or pattern == 'rC':
+            converted_data.append(register_name_to_bit(input_data[i]))
+        elif pattern.startswith('IMM'):
+            size = int(pattern[3:])
+            value = int(input_data[i], base=0)
+            converted_data.append(pad_bin(value, size))
+        elif pattern.startswith('Offset'):
+            size = int(pattern[6:])
+            assert input_data[i] in label_dictionary
+            value = label_dictionary[input_data[i]] - pc
+            converted_data.append(pad_bin(value, size))
+        elif pattern.startswith('Location'):
+            size = int(pattern[8:])
+            try:
+                value = int(input_data[i], base=0)
+            except ValueError:
+                assert input_data[i] in label_dictionary
+                value = label_dictionary[input_data[i]]
+            converted_data.append(pad_bin(value, size))
+        else:
+            raise Exception("Unknown data format")
+
+    return converted_data
+
+def shuffle(bit_str):
+    assert len(bit_str) % 9 == 0
+
+    # shuffle middle endian
+    shuffled = ''
+    while len(bit_str) >= 27:
+        shuffled += bit_str[9:18] + bit_str[0:9] + bit_str[18:27]
+        bit_str = bit_str[27:]
+    if len(bit_str) == 18:
+        shuffled += bit_str[9:18] + bit_str[0:9]
+    else:
+        shuffled += bit_str
+    return shuffled
 
 class BitWriter(object):
     def __init__(self):
@@ -97,44 +155,7 @@ class Instruction(object):
         self.size = bits / 9
 
     def to_bitstring(self, pc, tail, uf, label_dictionary):
-        delimiters = []
-        for (i, pattern) in enumerate(self.parse[:-1]):
-            if i+1 < len(self.parse) and type(self.parse[i+1]) is list:
-                delimiters += (',[', '+', ',', ']')
-            else:
-                delimiters.append(',')
-
-        prev_index = 0
-        input_data = []
-        for delimiter in delimiters:
-            delim_index = tail.index(delimiter, prev_index)
-            input_data.append(tail[prev_index:delim_index])
-            prev_index = delim_index+len(delimiter)
-        input_data.append(tail[prev_index:])
-
-        converted_data = []
-        for (i, pattern) in enumerate(self.data):
-            if pattern == 'rA' or pattern == 'rB' or pattern == 'rC':
-                converted_data.append(register_name_to_bit(input_data[i]))
-            elif pattern.startswith('IMM'):
-                size = int(pattern[3:])
-                value = int(input_data[i], base=0)
-                converted_data.append(pad_bin(value, size))
-            elif pattern.startswith('Offset'):
-                size = int(pattern[6:])
-                assert input_data[i] in label_dictionary
-                value = label_dictionary[input_data[i]] - pc
-                converted_data.append(pad_bin(value, size))
-            elif pattern.startswith('Location'):
-                size = int(pattern[8:])
-                try:
-                    value = int(input_data[i], base=0)
-                except ValueError:
-                    assert input_data[i] in label_dictionary
-                    value = label_dictionary[input_data[i]]
-                converted_data.append(pad_bin(value, size))
-            else:
-                raise Exception("Unknown data format")
+        converted_data = calculate_converted(pc, tail, self.parse, self.data, label_dictionary)
 
         bit_str = ''
         for pattern in self.format:
@@ -148,24 +169,33 @@ class Instruction(object):
                     idx = int(pattern[1:])
                     bit_str += converted_data[idx]
 
-        assert len(bit_str) % 9 == 0
+        return shuffle(bit_str)
 
-        # shuffle middle endian
-        shuffled = ''
-        while len(bit_str) >= 27:
-            shuffled += bit_str[9:18] + bit_str[0:9] + bit_str[18:27]
-            bit_str = bit_str[27:]
-        if len(bit_str) == 18:
-            shuffled += bit_str[9:18] + bit_str[0:9]
-        else:
-            shuffled += bit_str
+class MAInstruction(object):
+    def __init__(self, description, parse):
+        self.description = description
+        self.parse = parse
+        self.data = parse
+        self.size = 6
 
-        return shuffled
+    def to_bitstring(self, pc, tail, uf, label_dictionary):
+        converted_data = calculate_converted(pc, tail, self.parse, self.data, label_dictionary)
+
+        result = ''
+        result += shuffle('10010' + converted_data[0] + pad_bin(int(converted_data[1], 2) & 0b1111111111, 17))
+        result += shuffle('10001' + converted_data[0] + pad_bin(int(converted_data[1], 2) >> 10, 17))
+
+        return result
 
 
 instructions = {}
-for k, v in instruction_data.iteritems():
+for k, v in instruction_def.iteritems():
     instructions[k] = Instruction(*v)
+for k, v in macro_def.iteritems():
+    if k == 'MA!':
+        instructions[k] = MAInstruction(*v)
+    else:
+        raise Exception("Unimplemented Macro Definition")
 
 def asm(text):
     def strip_line(line):

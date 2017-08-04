@@ -60,12 +60,6 @@ instruction_data = {
         ('0010110', '$0', '$1', '$2', '0000', '$UF'),
         ('rA', 'rB', 'rC'),
     ),
-
-    'AC': (
-        'Add With Carry',
-        ('0100000', '$0', '$1', '$2', '0000', '$UF'),
-        ('rA', 'rB', 'rC'),
-    ),
     'ADCI': (
         'Add Immediate With Carry',
         ('0100000', '$0', '$1', '$2', '01', '$UF'),
@@ -347,7 +341,7 @@ instruction_data = {
         ('rA', 'IMM14'),
     ),
     'CMIM': (
-        'Compare Immediate Multiple Reg',
+        'Compare Immediate Multi Reg',
         ('10111101', '$0', '$1'),
         ('rA', 'IMM14'),
     ),
@@ -498,7 +492,7 @@ instruction_data = {
      ),
     'EI': (
         'Enable Interrupts',
-        ('101000000010', '$0', '0'),
+        ('101000000100', '$0', '0'),
         ('rA',)
     ),
     'FTI': (
@@ -534,47 +528,47 @@ instruction_data = {
     'LDS': (
         'Load Single',
         ('1010100', '$0', '$1', '$3', '00', '$2', '000'),
-        ('rA', ['rB', 'Location27', 'IMM5'])
+        ('rA', ['rB', 'Offset27', 'IMM5'])
     ),
     'LDSI': (
         'Load Single Inc',
         ('1010100', '$0', '$1', '$3', '01', '$2', '000'),
-        ('rA', ['rB', 'Location27', 'IMM5'])
+        ('rA', ['rB', 'Offset27', 'IMM5'])
     ),
     'LDSD': (
         'Load Single Dec',
         ('1010100', '$0', '$1', '$3', '10', '$2', '000'),
-        ('rA', ['rB', 'Location27', 'IMM5'])
+        ('rA', ['rB', 'Offset27', 'IMM5'])
     ),
     'LDT': (
         'Load Tri',
         ('1010110', '$0', '$1', '$3', '00', '$2', '000'),
-        ('rA', ['rB', 'Location27', 'IMM5'])
+        ('rA', ['rB', 'Offset27', 'IMM5'])
     ),
     'LDTI': (
         'Load Tri Inc',
         ('1010110', '$0', '$1', '$3', '01', '$2', '000'),
-        ('rA', ['rB', 'Location27', 'IMM5'])
+        ('rA', ['rB', 'Offset27', 'IMM5'])
     ),
     'LDTD': (
         'Load Tri Dec',
         ('1010110', '$0', '$1', '$3', '10', '$2', '000'),
-        ('rA', ['rB', 'Location27', 'IMM5'])
+        ('rA', ['rB', 'Offset27', 'IMM5'])
     ),
     'LDW': (
         'Load Word',
         ('1010101', '$0', '$1', '$3', '00', '$2', '000'),
-        ('rA', ['rB', 'Location27', 'IMM5'])
+        ('rA', ['rB', 'Offset27', 'IMM5'])
     ),
     'LDWI': (
         'Load Word Inc',
         ('1010101', '$0', '$1', '$3', '01', '$2', '000'),
-        ('rA', ['rB', 'Location27', 'IMM5'])
+        ('rA', ['rB', 'Offset27', 'IMM5'])
     ),
     'LDWD': (
         'Load Word Dec',
         ('1010101', '$0', '$1', '$3', '10', '$2', '000'),
-        ('rA', ['rB', 'Location27', 'IMM5'])
+        ('rA', ['rB', 'Offset27', 'IMM5'])
     ),
     'MD': (
         'Modulus',
@@ -583,13 +577,13 @@ instruction_data = {
     ),
 
     'MDF': (
-        'Modulus Immediate',
+        'Modulus Floating Point',
         ('0010001', '$0', '$1', '$2', '0000', '$UF'),
         ('rA', 'rB', 'rC')
     ),
 
     'MDFM': (
-        'Modulus Immediate Multi Reg',
+        'Modulus Floating Point Multi Reg',
         ('0010011', '$0', '$1', '$2', '0000', '$UF'),
         ('rA', 'rB', 'rC')
     ),
@@ -781,12 +775,12 @@ instruction_data = {
     ),
 
     'RL': (
-        'Rotate Left Multi Reg',
+        'Rotate Left',
         ('0110000', '$0', '$1', '$2', '0000', '$UF'),
         ('rA', 'rB', 'rC')
     ),
     'RLI': (
-        'Rotate Left Immediate Multi Reg',
+        'Rotate Left Immediate',
         ('1000000', '$0', '$1', '$2', '00', '$UF'),
         ('rA', 'rB', 'IMM7')
     ),
@@ -822,12 +816,12 @@ instruction_data = {
     ),
 
     'RR': (
-        'Rotate Right Multi Reg',
+        'Rotate Right',
         ('0110001', '$0', '$1', '$2', '0000', '$UF'),
         ('rA', 'rB', 'rC')
     ),
     'RRI': (
-        'Rotate Right Immediate Multi Reg',
+        'Rotate Right Immediate',
         ('1000001', '$0', '$1', '$2', '00', '$UF'),
         ('rA', 'rB', 'IMM7')
     ),
@@ -845,24 +839,24 @@ instruction_data = {
     ),
 
     'SA': (
-        'Shift Arithmetic Right',
+        'Shift Arithemetic Right',
         ('0101101', '$0', '$1', '$2', '0000', '$UF'),
         ('rA', 'rB', 'rC')
     ),
     'SAI': (
-        'Shift Arithmetic Right Immediate',
+        'Shift Arithemetic Right Immediate',
         ('0111101', '$0', '$1', '$2', '00', '$UF'),
         ('rA', 'rB', 'IMM7')
     ),
 
     'SAIM': (
-        'Shift Arithmetic Right Immediate Multi Reg',
+        'Shift Arithemetic Right Immediate Multi Reg',
         ('0111111', '$0', '$1', '$2', '00', '$UF'),
         ('rA', 'rB', 'IMM7')
     ),
 
     'SAM': (
-        'Shift Arithmetic Right Multi Reg',
+        'Shift Arithemetic Right Multi Reg',
         ('0101111', '$0', '$1', '$2', '0000', '$UF'),
         ('rA', 'rB', 'rC')
     ),
@@ -1002,53 +996,53 @@ instruction_data = {
     'STS': (
         'Store Single',
         ('1011000', '$0', '$1', '$3', '00', '$2', '000'),
-        ('rA', ['rB', 'Location27', 'IMM5'])
+        ('rA', ['rB', 'Offset27', 'IMM5'])
     ),
 
     'STSI': (
         'Store Single Inc',
         ('1011000', '$0', '$1', '$3', '01', '$2', '000'),
-        ('rA', ['rB', 'Location27', 'IMM5'])
+        ('rA', ['rB', 'Offset27', 'IMM5'])
     ),
 
     'STSD': (
         'Store Single Dec',
         ('1011000', '$0', '$1', '$3', '10', '$2', '000'),
-        ('rA', ['rB', 'Location27', 'IMM5'])
+        ('rA', ['rB', 'Offset27', 'IMM5'])
     ),
 
     'STT': (
         'Store Tri',
         ('1011010', '$0', '$1', '$3', '00', '$2', '000'),
-        ('rA', ['rB', 'Location27', 'IMM5'])
+        ('rA', ['rB', 'Offset27', 'IMM5'])
     ),
 
     'STTI': (
         'Store Tri Inc',
         ('1011010', '$0', '$1', '$3', '01', '$2', '000'),
-        ('rA', ['rB', 'Location27', 'IMM5'])
+        ('rA', ['rB', 'Offset27', 'IMM5'])
     ),
 
     'STTD': (
         'Store Tri Dec',
         ('1011010', '$0', '$1', '$3', '10', '$2', '000'),
-        ('rA', ['rB', 'Location27', 'IMM5'])
+        ('rA', ['rB', 'Offset27', 'IMM5'])
     ),
 
     'STW': (
         'Store Word',
         ('1011001', '$0', '$1', '$3', '00', '$2', '000'),
-        ('rA', ['rB', 'Location27', 'IMM5'])
+        ('rA', ['rB', 'Offset27', 'IMM5'])
     ),
     'STWI': (
         'Store Word Inc',
         ('1011001', '$0', '$1', '$3', '01', '$2', '000'),
-        ('rA', ['rB', 'Location27', 'IMM5'])
+        ('rA', ['rB', 'Offset27', 'IMM5'])
     ),
     'STWD': (
         'Store Word Dec',
         ('1011001', '$0', '$1', '$3', '10', '$2', '000'),
-        ('rA', ['rB', 'Location27', 'IMM5'])
+        ('rA', ['rB', 'Offset27', 'IMM5'])
     ),
 
     'WT': (

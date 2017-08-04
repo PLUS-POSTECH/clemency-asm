@@ -6,4 +6,5 @@ SHELLCODE:
     LDT r00, [r00 + 0, 0]
 HERE:
     BRA 0x1234
+    MA! ST, 0x12345
     BRA HERE
